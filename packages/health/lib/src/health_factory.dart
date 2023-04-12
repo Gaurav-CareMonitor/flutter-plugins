@@ -72,8 +72,11 @@ class HealthFactory {
   /// Uses `disableFit()` on Google Fit.
   ///
   /// Not implemented on iOS as there is no way to programmatically remove access.
-  Future<void> revokePermissions() async {
-    return await _channel.invokeMethod('revokePermissions');
+  Future<void> revokePermissions(List<HealthDataType> types) async {
+     final mTypes = List<HealthDataType>.from(types, growable: true);
+    return await _channel.invokeMethod('revokePermissions' {
+      "types": mTypes.map((type) => type.name).toList()
+    });
   }
 
   /// Requests permissions to access data types in Apple Health or Google Fit.
