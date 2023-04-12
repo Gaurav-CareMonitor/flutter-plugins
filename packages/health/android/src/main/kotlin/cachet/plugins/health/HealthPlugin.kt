@@ -954,18 +954,22 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
         result.success(false)
         return
     }
+
+    val optionsToRegister = callToHealthTypes(call)
+
+
     Fitness.getConfigClient(activity!!, GoogleSignIn.getLastSignedInAccount(context!!)!!)
         .disableFit()
         .addOnSuccessListener {
             Log.i("Health", "Disabled Google Fit")
             // Signing Out From Google Account
             val gso = GoogleSignInOptions.Builder()
-                .addExtension(fitnessOptions)
+                .addExtension(optionsToRegister)
                 .build()
             val signInClient = GoogleSignIn.getClient(context!!, gso)
             signInClient.signOut().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.e(TAG, "Google account disconnected")
+                    Log.e("Health", "Google account disconnected")
                     result.success(true)
                 } else {
                     Log.w("Health", "There was an error disconnecting Google account", task.exception)
