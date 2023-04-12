@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessActivities
@@ -957,7 +958,21 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
       .disableFit()
       .addOnSuccessListener {
         Log.i("Health","Disabled Google Fit")
-        result.success(true)
+        // Signing Out From Google Account
+          GoogleSignInOptions gso = new GoogleSignInOptions.Builder()
+           .addExtension(fitnessOptions)
+           .build();
+          GoogleSignInClient signInClient = GoogleSignIn.getClient(this, gso);
+          signInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                Log.e(TAG, "Google account disconnected");
+                result.success(true);
+                }
+               }.addOnFailureListener { e ->
+        Log.w("Health", "There was an error disabling Google Fit", e)
+        result.success(false)
+          });
       }
       .addOnFailureListener { e ->
         Log.w("Health", "There was an error disabling Google Fit", e)
