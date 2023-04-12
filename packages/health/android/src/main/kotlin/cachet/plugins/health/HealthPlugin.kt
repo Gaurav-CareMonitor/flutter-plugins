@@ -951,34 +951,34 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
    */
   private fun revokePermissions(call: MethodCall, result: Result) {
     if (context == null) {
-      result.success(false)
-      return
+        result.success(false)
+        return
     }
     Fitness.getConfigClient(activity!!, GoogleSignIn.getLastSignedInAccount(context!!)!!)
-      .disableFit()
-      .addOnSuccessListener {
-        Log.i("Health","Disabled Google Fit")
-        // Signing Out From Google Account
-          GoogleSignInOptions gso = new GoogleSignInOptions.Builder()
-           .addExtension(fitnessOptions)
-           .build();
-          GoogleSignInClient signInClient = GoogleSignIn.getClient(this, gso);
-          signInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                Log.e(TAG, "Google account disconnected");
-                result.success(true);
+        .disableFit()
+        .addOnSuccessListener {
+            Log.i("Health", "Disabled Google Fit")
+            // Signing Out From Google Account
+            val gso = GoogleSignInOptions.Builder()
+                .addExtension(fitnessOptions)
+                .build()
+            val signInClient = GoogleSignIn.getClient(context!!, gso)
+            signInClient.signOut().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.e(TAG, "Google account disconnected")
+                    result.success(true)
+                } else {
+                    Log.w("Health", "There was an error disconnecting Google account", task.exception)
+                    result.success(false)
                 }
-               }.addOnFailureListener { e ->
-        Log.w("Health", "There was an error disabling Google Fit", e)
-        result.success(false)
-          });
-      }
-      .addOnFailureListener { e ->
-        Log.w("Health", "There was an error disabling Google Fit", e)
-        result.success(false)
-      }
-  }
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.w("Health", "There was an error disabling Google Fit", e)
+            result.success(false)
+        }
+}
+
 
   private fun getTotalStepsInInterval(call: MethodCall, result: Result) {
     val start = call.argument<Long>("startTime")!!
