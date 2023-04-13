@@ -280,7 +280,10 @@ class BloodGlucoseHealthValue extends HealthValue {
   String toString() => numericValue.toString();
 
   factory BloodGlucoseHealthValue.fromJson(json) {
-    log("BloodGlucoseHealthValue.fromJson $json");
+    print("***********************************");
+    print("BloodGlucoseHealthValue.fromJson: $json");
+    print("***********************************");
+
     return BloodGlucoseHealthValue(
         json['value'], json['meal_time'], json['meal_type']);
   }
