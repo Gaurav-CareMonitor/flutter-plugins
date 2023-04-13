@@ -637,7 +637,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
         .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
     }
     else if (dataType == HealthDataTypes.TYPE_BLOOD_GLUCOSE) {
-      typesBuilder.addDataType(DataType.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
+      typesBuilder.addDataType(HealthDataTypes.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
     }
     
     val fitnessOptions = typesBuilder.build()
@@ -647,7 +647,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
     when (dataType) {
        HealthDataTypes.TYPE_BLOOD_GLUCOSE -> {
       val request = DataReadRequest.Builder()
-        .aggregate(DataType.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
+        .aggregate(HealthDataTypes.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
         .bucketByTime(1, TimeUnit.DAYS)
         .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
         .build()
@@ -743,7 +743,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
       val healthData = dataSet.dataPoints.mapIndexed { _, dataPoint ->
 
         val mealType = dataPoint.getValue(Field.FIELD_MEAL_TYPE).asInt()
-        val mealTime = dataPoint.getValue(Field.FIELD_MEAL_TIME).asInt()
+        val mealTime = dataPoint.getValue(Field.FIELD_TEMPORAL_RELATION_TO_MEAL).asInt()
 
         return@mapIndexed hashMapOf(
           "value" to getHealthDataValue(dataPoint, field),
