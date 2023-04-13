@@ -636,25 +636,27 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
         .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
         .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
     }
+    else if (dataType == HealthDataTypes.TYPE_BLOOD_GLUCOSE) {
+      typesBuilder.addDataType(DataType.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
+    }
     
     val fitnessOptions = typesBuilder.build()
     val googleSignInAccount =
       GoogleSignIn.getAccountForExtension(context!!.applicationContext, fitnessOptions)
     // Handle data types
     when (dataType) {
-      HealthDataTypes.TYPE_BLOOD_GLUCOSE -> {
-        // request to the history for blood glucose data with summary
-         val request =  DataReadRequest.Builder()
-              .read(dataType)
-              .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-              .aggregate(AGGREGATE_BLOOD_GLUCOSE_SUMMARY, dataType)
-              .build()
+       HealthDataTypes.TYPE_BLOOD_GLUCOSE -> {
+      val request = DataReadRequest.Builder()
+        .aggregate(DataType.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
+        .bucketByTime(1, TimeUnit.DAYS)
+        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+        .build()
 
         Fitness.getHistoryClient(context!!.applicationContext, googleSignInAccount)
-          .readData(request)
-          .addOnSuccessListener(threadPoolExecutor!!, bloodGlucoseDataHandler(dataType, field, result))
-          .addOnFailureListener(errHandler(result, "There was an error getting the data!"))
-      }
+        .readData(request)
+        .addOnSuccessListener(threadPoolExecutor!!, bloodGlucoseDataHandler(dataType, field, result))
+        .addOnFailureListener(errHandler(result, "There was an error getting the blood glucose data!"))
+       }
       DataType.TYPE_SLEEP_SEGMENT -> {
         // request to the sessions for sleep data
         val request = SessionReadRequest.Builder()
