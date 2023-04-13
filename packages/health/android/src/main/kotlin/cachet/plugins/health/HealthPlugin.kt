@@ -636,11 +636,25 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
         .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
         .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
     }
+    
     val fitnessOptions = typesBuilder.build()
     val googleSignInAccount =
       GoogleSignIn.getAccountForExtension(context!!.applicationContext, fitnessOptions)
     // Handle data types
     when (dataType) {
+      HealthDataTypes.TYPE_BLOOD_GLUCOSE -> {
+        // request to the history for blood glucose data with summary
+         val request =  DataReadRequest.Builder()
+              .read(dataType)
+              .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+              .aggregate(DataType.AGGREGATE_BLOOD_GLUCOSE_SUMMARY, dataType)
+              .build()
+
+        Fitness.getHistoryClient(context!!.applicationContext, googleSignInAccount)
+          .readData(request)
+          .addOnSuccessListener(threadPoolExecutor!!, bloodGlucoseDataHandler(dataType, field, result))
+          .addOnFailureListener(errHandler(result, "There was an error getting the data!"))
+      }
       DataType.TYPE_SLEEP_SEGMENT -> {
         // request to the sessions for sleep data
         val request = SessionReadRequest.Builder()
@@ -710,6 +724,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
       }
       Handler(context!!.mainLooper).run { result.success(healthData) }
     }
+    
 
   private fun errHandler(result: Result, addMessage: String) = OnFailureListener { exception ->
     Handler(context!!.mainLooper).run { result.success(null) }
@@ -717,6 +732,31 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
     Log.w("FLUTTER_HEALTH::ERROR", exception.message ?: "unknown error")
     Log.w("FLUTTER_HEALTH::ERROR", exception.stackTrace.toString())
   }
+
+  private fun bloodGlucoseDataHandler(dataType: DataType, field: Field, result: Result) =
+    OnSuccessListener { response: DataReadResponse ->
+      /// Fetch all data points for the specified DataType
+      val dataSet = response.getDataSet(dataType)
+      /// For each data point, extract the contents and send them to Flutter, along with date and unit.
+      val healthData = dataSet.dataPoints.mapIndexed { _, dataPoint ->
+
+        val mealType = dataPoint.getValue(Field.FIELD_MEAL_TYPE).asInt()
+        val mealTime = dataPoint.getValue(Field.FIELD_TEMPORAL_RELATION_TO_MEAL).asInt()
+
+        return@mapIndexed hashMapOf(
+          "value" to getHealthDataValue(dataPoint, field),
+          "date_from" to dataPoint.getStartTime(TimeUnit.MILLISECONDS),
+          "date_to" to dataPoint.getEndTime(TimeUnit.MILLISECONDS),
+          "source_name" to (dataPoint.originalDataSource.appPackageName
+            ?: (dataPoint.originalDataSource.device?.model
+              ?: "")),
+          "source_id" to dataPoint.originalDataSource.streamIdentifier,
+          "meal_type" to mealType,
+          "meal_time" to mealTime
+        )
+      }
+      Handler(context!!.mainLooper).run { result.success(healthData) }
+    }
 
   private fun sleepDataHandler(type: String, result: Result) =
     OnSuccessListener { response: SessionReadResponse ->
