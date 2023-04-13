@@ -636,9 +636,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
         .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
         .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
     }
-    else if (dataType == HealthDataTypes.TYPE_BLOOD_GLUCOSE) {
-      typesBuilder.addDataType(HealthDataTypes.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
-    }
+   
     
     val fitnessOptions = typesBuilder.build()
     val googleSignInAccount =
@@ -646,16 +644,16 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
     // Handle data types
     when (dataType) {
        HealthDataTypes.TYPE_BLOOD_GLUCOSE -> {
-      val request = DataReadRequest.Builder()
-        .aggregate(HealthDataTypes.AGGREGATE_BLOOD_GLUCOSE_SUMMARY)
-        .bucketByTime(1, TimeUnit.DAYS)
-        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-        .build()
-
-        Fitness.getHistoryClient(context!!.applicationContext, googleSignInAccount)
-        .readData(request)
-        .addOnSuccessListener(threadPoolExecutor!!, bloodGlucoseDataHandler(dataType, field, result))
-        .addOnFailureListener(errHandler(result, "There was an error getting the blood glucose data!"))
+       Fitness.getHistoryClient(context!!.applicationContext, googleSignInAccount)
+          .readData(
+            DataReadRequest.Builder()
+              .read(dataType)
+              .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+              .build()
+          )
+          .addOnSuccessListener(threadPoolExecutor!!, dataHandler(dataType, field, result))
+          .addOnFailureListener(errHandler(result, "There was an error getting the data!"))
+   
        }
       DataType.TYPE_SLEEP_SEGMENT -> {
         // request to the sessions for sleep data
@@ -754,7 +752,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
               ?: "")),
           "source_id" to dataPoint.originalDataSource.streamIdentifier,
           "meal_type" to mealType,
-       //   "meal_time" to mealTime
+      
         )
       }
       Handler(context!!.mainLooper).run { result.success(healthData) }
