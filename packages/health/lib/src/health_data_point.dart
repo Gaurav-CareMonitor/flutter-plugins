@@ -50,6 +50,8 @@ class HealthDataPoint {
       healthValue = AudiogramHealthValue.fromJson(json['value']);
     } else if (json['data_type'] == 'WORKOUT') {
       healthValue = WorkoutHealthValue.fromJson(json['value']);
+    } else if (json['data_type'] == 'BLOOD_GLUCOSE') {
+      healthValue = BloodGlucoseHealthValue.fromJson(json);
     } else {
       healthValue = NumericHealthValue.fromJson(json['value']);
     }

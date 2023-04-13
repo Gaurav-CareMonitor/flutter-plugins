@@ -265,6 +265,44 @@ class ElectrocardiogramVoltageValue extends HealthValue {
   String toString() => voltage.toString();
 }
 
+class BloodGlucoseHealthValue extends HealthValue {
+  num _numericValue;
+  num _mealTime;
+  num _mealType;
+
+  BloodGlucoseHealthValue(this._numericValue, this._mealTime, this._mealType);
+
+  num get numericValue => _numericValue;
+  num get mealTime => _mealTime;
+  num get mealType => _mealType;
+
+  @override
+  String toString() => numericValue.toString();
+
+  factory BloodGlucoseHealthValue.fromJson(json) {
+    log("BloodGlucoseHealthValue.fromJson $json");
+    return BloodGlucoseHealthValue(
+        json['value'], json['meal_time'], json['meal_type']);
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'value': _numericValue,
+        'meal_time': _mealTime,
+        'meal_type': _mealType,
+      };
+
+  @override
+  bool operator ==(Object o) =>
+      o is BloodGlucoseHealthValue &&
+      _numericValue == o._numericValue &&
+      _mealTime == o._mealTime &&
+      _mealType == o._mealType;
+
+  @override
+  int get hashCode => Object.hash(_numericValue, _mealTime, _mealType);
+}
+
 abstract class HealthValue {
   Map<String, dynamic> toJson();
 }
