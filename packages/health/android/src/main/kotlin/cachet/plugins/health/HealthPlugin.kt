@@ -743,7 +743,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
       val healthData = dataSet.dataPoints.mapIndexed { _, dataPoint ->
 
         val mealType = dataPoint.getValue(Field.FIELD_MEAL_TYPE).asInt()
-        val mealTime = dataPoint.getValue(Field.FIELD_TEMPORAL_RELATION_TO_MEAL).asInt()
+        val mealTime = dataPoint.getValue(Field.FIELD_MEAL_TIME).asInt()
 
         return@mapIndexed hashMapOf(
           "value" to getHealthDataValue(dataPoint, field),
