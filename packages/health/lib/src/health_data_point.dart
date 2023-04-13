@@ -45,6 +45,7 @@ class HealthDataPoint {
 
   /// Converts a json object to the [HealthDataPoint]
   factory HealthDataPoint.fromJson(json) {
+    log("HealthDataPoint.fromJson: $json", name: "HealthDataPoint");
     HealthValue healthValue;
     if (json['data_type'] == 'AUDIOGRAM') {
       healthValue = AudiogramHealthValue.fromJson(json['value']);
