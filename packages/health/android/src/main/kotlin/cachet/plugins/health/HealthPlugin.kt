@@ -647,7 +647,7 @@ ActivityResultListener, Result, ActivityAware, FlutterPlugin {
          val request =  DataReadRequest.Builder()
               .read(dataType)
               .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-              .aggregate(DataType.AGGREGATE_BLOOD_GLUCOSE_SUMMARY, dataType)
+              .aggregate(AGGREGATE_BLOOD_GLUCOSE_SUMMARY, dataType)
               .build()
 
         Fitness.getHistoryClient(context!!.applicationContext, googleSignInAccount)
