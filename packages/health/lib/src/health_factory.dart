@@ -433,6 +433,7 @@ class HealthFactory {
     final device = message["deviceId"];
     final unit = _dataTypeToUnit[dataType]!;
     final list = dataPoints.map<HealthDataPoint>((e) {
+      log("HealthDataPoint: $e", name: "HealthDataPoint");
       // Handling different [HealthValue] types
       HealthValue value;
       if (dataType == HealthDataType.AUDIOGRAM) {
@@ -441,6 +442,8 @@ class HealthFactory {
         value = WorkoutHealthValue.fromJson(e);
       } else if (dataType == HealthDataType.ELECTROCARDIOGRAM) {
         value = ElectrocardiogramHealthValue.fromJson(e);
+      } else if (dataType == HealthDataType.BLOOD_GLUCOSE) {
+        value = BloodGlucoseHealthValue.fromJson(e);
       } else {
         value = NumericHealthValue(e['value']);
       }
